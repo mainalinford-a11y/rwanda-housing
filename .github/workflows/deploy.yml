@@ -19,7 +19,14 @@ jobs:
       - name: Install system deps
         run: |
           sudo apt-get update
+          # Libraries required by Pillow
           sudo apt-get install -y libjpeg-dev zlib1g-dev
+          # Build tools and pkg-config (needed for building wheels like mysqlclient)
+          sudo apt-get install -y build-essential pkg-config python3-dev
+          # MySQL/MariaDB client libraries (install when mysqlclient is required)
+          sudo apt-get install -y default-libmysqlclient-dev libmariadb-dev-compat libmariadb-dev
+          # SSL and ffi headers often needed by cryptography and other packages
+          sudo apt-get install -y libssl-dev libffi-dev
 
       - name: Install Python dependencies (minimal)
         run: |
