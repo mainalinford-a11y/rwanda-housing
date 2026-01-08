@@ -3,8 +3,10 @@ set -e
 echo "Building the project..."
 
 # Create and activate a virtual environment for isolated builds
+# Create a virtual environment and activate it (POSIX-compatible)
 python -m venv .venv
-source .venv/bin/activate
+# Use POSIX-compatible activation so `/bin/sh` can run it on Vercel
+. .venv/bin/activate
 
 # Upgrade pip and install project dependencies into the venv
 pip install --upgrade pip
