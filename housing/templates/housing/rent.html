@@ -1,0 +1,58 @@
+{% extends 'housing/base.html' %}
+
+{% block title %}Properties to Rent - Rwanda Housing{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+    <h1 class="text-4xl font-extrabold text-black mb-12 border-b-4 border-accent inline-block pb-2">Rent</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {% for property in properties %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <div class="h-48 bg-gray-200 relative">
+                {% with thumbnail=property.get_thumbnail %}
+                {% if thumbnail %}
+                <img src="{{ thumbnail.image.url }}" alt="{{ property.title }}" class="w-full h-full object-cover">
+                {% elif property.image %}
+                <img src="{{ property.image.url }}" alt="{{ property.title }}" class="w-full h-full object-cover">
+                {% else %}
+                <div class="flex items-center justify-center h-full text-gray-400">
+                    <i class="fas fa-home text-4xl"></i>
+                </div>
+                {% endif %}
+                {% endwith %}
+                <div
+                    class="absolute top-4 right-4 bg-accent text-white px-3 py-1 rounded-sm text-xs font-bold uppercase tracking-wider">
+                    To Rent
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-black mb-1">{{ property.title }}</h3>
+                        <p class="text-gray-500 text-sm"><i class="fas fa-map-marker-alt mr-2 text-accent"></i>{{
+                            property.location
+                            }}</p>
+                    </div>
+                    <p class="text-black font-extrabold text-lg">{{ property.price }} FRW / mo</p>
+                </div>
+                <div class="flex items-center space-x-4 text-sm text-gray-500 mb-4">
+                    <span><i class="fas fa-bed mr-2 text-accent"></i>{{ property.bedrooms|default:"2" }} Beds</span>
+                    <span><i class="fas fa-bath mr-2 text-accent"></i>{{ property.bathrooms|default:"1" }} Baths</span>
+                </div>
+                <div class="border-t pt-4">
+                    <a href="{% url 'property_detail' property.id %}"
+                        class="block w-full text-center bg-black text-white py-3 rounded-md hover:bg-gray-800 font-bold transition-colors">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 text-center py-12">
+            <p class="text-gray-500 text-xl">No properties found to rent.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

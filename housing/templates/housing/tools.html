@@ -1,0 +1,129 @@
+{% extends 'housing/base.html' %}
+
+{% block title %}Property Tools - Rwanda Housing{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+    <h1 class="text-4xl font-extrabold text-black mb-12 border-b-4 border-accent inline-block pb-2">Tools</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <!-- Mortgage Calculator -->
+        <div class="bg-white p-10 rounded-xl shadow-xl border border-gray-100">
+            <h2 class="text-2xl font-bold mb-8 flex items-center">
+                <span
+                    class="w-10 h-10 bg-accent bg-opacity-10 text-accent rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-calculator"></i>
+                </span>
+                Mortgage Calculator
+            </h2>
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Property Price (FRW)</label>
+                    <input type="number" id="mortgage-price" value="50000000"
+                        class="w-full p-4 border border-gray-200 rounded-md focus:ring-2 focus:ring-accent focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Deposit (FRW)</label>
+                    <input type="number" id="mortgage-deposit" value="10000000"
+                        class="w-full p-4 border border-gray-200 rounded-md focus:ring-2 focus:ring-accent focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Interest Rate (%)</label>
+                        <input type="number" id="mortgage-rate" value="16" step="0.1"
+                            class="w-full p-4 border border-gray-200 rounded-md focus:ring-2 focus:ring-accent focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Term (Years)</label>
+                        <input type="number" id="mortgage-term" value="20"
+                            class="w-full p-4 border border-gray-200 rounded-md focus:ring-2 focus:ring-accent focus:outline-none">
+                    </div>
+                </div>
+                <div class="pt-8 border-t border-gray-100 mt-8">
+                    <div class="text-center mb-8">
+                        <p class="text-gray-500 font-medium mb-2">Estimated Monthly Repayment</p>
+                        <p class="text-5xl font-black text-black" id="mortgage-result">---</p>
+                    </div>
+                    <button onclick="calculateMortgage()"
+                        class="w-full bg-accent text-white py-4 rounded-md hover:opacity-90 font-bold transition-all">
+                        Calculate Repayment
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stamp Duty / Taxes -->
+        <div class="bg-white p-10 rounded-xl shadow-xl border border-gray-100">
+            <h2 class="text-2xl font-bold mb-8 flex items-center">
+                <span
+                    class="w-10 h-10 bg-accent bg-opacity-10 text-accent rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </span>
+                Additional Costs
+            </h2>
+            <div class="space-y-10">
+                <div class="flex items-start">
+                    <div
+                        class="flex-shrink-0 w-12 h-12 bg-accent bg-opacity-10 rounded-full flex items-center justify-center text-accent mt-1 border border-accent">
+                        <i class="fas fa-info"></i>
+                    </div>
+                    <div class="ml-6">
+                        <h3 class="font-bold text-xl text-black">Transfer Fees</h3>
+                        <p class="text-gray-600 leading-relaxed">Expect to pay around 1-2% of the property value in
+                            transfer fees and
+                            potential legal costs.</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div
+                        class="flex-shrink-0 w-12 h-12 bg-accent bg-opacity-10 rounded-full flex items-center justify-center text-accent mt-1 border border-accent">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="ml-6">
+                        <h3 class="font-bold text-xl text-black">Property Tax</h3>
+                        <p class="text-gray-600 leading-relaxed">Property tax in Rwanda varies by location and property
+                            type. Consult
+                            with a local agent for exact figures.</p>
+                    </div>
+                </div>
+                <div class="mt-12 bg-gray-50 p-8 rounded-xl border border-gray-100">
+                    <h4 class="font-bold text-lg mb-3 text-black">Need Expert Advice?</h4>
+                    <p class="text-gray-600 mb-6">Our partner agents can help you understand all the costs involved.</p>
+                    <a href="{% url 'agent_list' %}" class="text-accent font-bold hover:underline flex items-center">
+                        Find an Agent
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+    function calculateMortgage() {
+        const price = parseFloat(document.getElementById('mortgage-price').value);
+        const deposit = parseFloat(document.getElementById('mortgage-deposit').value);
+        const rate = parseFloat(document.getElementById('mortgage-rate').value) / 100 / 12;
+        const term = parseFloat(document.getElementById('mortgage-term').value) * 12;
+
+        const principal = price - deposit;
+
+        if (principal <= 0) {
+            document.getElementById('mortgage-result').innerText = "0 FRW";
+            return;
+        }
+
+        const x = Math.pow(1 + rate, term);
+        const monthly = (principal * x * rate) / (x - 1);
+
+        if (isFinite(monthly)) {
+            document.getElementById('mortgage-result').innerText = Math.round(monthly).toLocaleString() + " FRW";
+        } else {
+            document.getElementById('mortgage-result').innerText = "---";
+        }
+    }
+</script>
+{% endblock %}

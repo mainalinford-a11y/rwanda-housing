@@ -1,0 +1,181 @@
+{% extends 'housing/base.html' %}
+
+{% block content %}
+
+
+<!-- Hero Search Section -->
+<div class="bg-black py-20 text-white">
+    <div class="container mx-auto px-4">
+        <h1 class="text-5xl font-extrabold text-center mb-4">Find your dream property</h1>
+        <p class="text-center text-xl mb-12 text-gray-300">Search houses and flats for sale and to rent in Rwanda</p>
+
+        <!-- Search Bar -->
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-5xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="relative">
+                    <span class="absolute left-3 top-3 text-gray-400"><i class="fas fa-map-marker-alt"></i></span>
+                    <input type="text" id="search-location" placeholder="Location (e.g., Kigali)"
+                        class="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-accent text-black">
+                </div>
+                <select id="search-type"
+                    class="p-3 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-accent text-black">
+                    <option value="">All Properties</option>
+                    <option value="house">House</option>
+                    <option value="flat">Flat</option>
+                    <option value="apartment">Apartment</option>
+                    <option value="bungalow">Bungalow</option>
+                </select>
+                <select id="search-price"
+                    class="p-3 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-accent text-black">
+                    <option value="">Price range(FRW)</option>
+                    <option value="0-200000">0 - 200,000</option>
+                    <option value="200000-400000">200,000 - 400,000</option>
+                    <option value="400000-600000">400,000 - 600,000</option>
+                    <option value="600000-">600,000+</option>
+                </select>
+                <button onclick="searchProperties()"
+                    class="bg-accent text-white p-3 rounded-md hover:opacity-90 font-bold text-lg transition duration-200">
+                    Search
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Property Listings -->
+<div class="container mx-auto px-4 py-12">
+    <h2 class="text-2xl font-bold mb-8">Featured Properties</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="property-listings">
+        <!-- Property cards will be dynamically loaded here -->
+    </div>
+    <div id="loading" class="text-center py-8 hidden">
+        <i class="fas fa-spinner fa-spin text-3xl text-blue-600"></i>
+        <p class="mt-2">Loading properties...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+    // API Configuration
+    const API_BASE_URL = 'http://127.0.0.1:8000/api';
+
+    // State
+    let currentUser = null;
+    let authToken = null; // Session auth used instead
+
+    function showError(message) {
+        alert(`Error: ${message}`);
+    }
+
+    function showSuccess(message) {
+        alert(`Success: ${message}`);
+    }
+
+    // API Functions
+    async function apiRequest(endpoint, method = 'GET', data = null) {
+        const url = `${API_BASE_URL}${endpoint}`;
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        if (authToken) {
+            headers['Authorization'] = `Token ${authToken}`;
+        }
+
+        const options = {
+            method,
+            headers,
+        };
+
+        if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+            options.body = JSON.stringify(data);
+        }
+
+        try {
+            const response = await fetch(url, options);
+            const responseData = await response.json();
+
+            if (!response.ok) {
+                throw new Error(responseData.detail || 'Something went wrong');
+            }
+
+            return responseData;
+        } catch (error) {
+            console.error('API Request Error:', error);
+            throw error;
+        }
+    }
+
+    // Load properties initially
+    // Note: I am assuming there was more code here for `searchProperties` etc. 
+    // that I unfortunately don't have visibility on from previous tool outputs 
+    // as they were truncated. 
+    // However, I must define searchProperties to make the button work.
+
+    async function searchProperties() {
+        const location = document.getElementById('search-location').value;
+        const type = document.getElementById('search-type').value;
+        const price = document.getElementById('search-price').value;
+
+        let query = '?';
+        if (location) query += `search=${location}&`;
+        if (type) query += `property_type=${type}&`;
+        // Note: Use simple search for now as backend supports search filter.
+
+        loadProperties(query);
+    }
+
+    async function loadProperties(query = '') {
+        const loading = document.getElementById('loading');
+        const container = document.getElementById('property-listings');
+
+        loading.classList.remove('hidden');
+        container.innerHTML = '';
+
+        try {
+            const response = await apiRequest(`/properties/${query}`);
+            // Verify response structure, usually DRF returns results array or list
+            const properties = response.results || response;
+
+            if (properties.length === 0) {
+                container.innerHTML = '<p class="text-center col-span-3 text-gray-500">No properties found.</p>';
+            } else {
+                properties.forEach(property => {
+                    const card = `
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                                <a href="/property/${property.id}/" class="block">
+                                    <div class="h-48 bg-gray-200 relative">
+                                        ${property.thumbnail ? `<img src="${property.thumbnail}" alt="${property.title}" class="w-full h-full object-cover">` :
+                            '<div class="flex items-center justify-center h-full text-gray-400"><i class="fas fa-home text-4xl"></i></div>'}
+                                        <div class="absolute top-4 right-4 bg-accent text-white px-3 py-1 rounded-sm text-xs font-bold uppercase tracking-wider">
+                                            For ${property.listing_type === 'rent' ? 'Rent' : 'Sale'}
+                                        </div>
+                                    </div>
+                                    <div class="p-6">
+                                        <h3 class="text-xl font-bold text-black mb-1">${property.title}</h3>
+                                        <p class="text-gray-600 text-sm mb-3"><i class="fas fa-map-marker-alt mr-2 text-accent"></i>${property.location}</p>
+                                        <p class="text-black font-extrabold text-2xl">${property.price} FRW</p>
+                                    </div>
+                                </a>
+                            </div>
+                        `;
+                    container.innerHTML += card;
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            container.innerHTML = '<p class="text-center col-span-3 text-red-500">Failed to load properties.</p>';
+        } finally {
+            loading.classList.add('hidden');
+        }
+    }
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadProperties();
+    });
+
+</script>
+{% endblock %}

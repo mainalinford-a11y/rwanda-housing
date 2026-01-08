@@ -1,0 +1,197 @@
+{% extends 'housing/base.html' %}
+
+{% block title %}{{ property.title }} - Rwanda Housing{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumb -->
+        <nav class="flex mb-8" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="{% url 'index' %}"
+                        class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-home mr-2"></i>
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 text-sm mx-2"></i>
+                        <a href="{% if property.listing_type == 'sale' %}{% url 'buy_properties' %}{% else %}{% url 'rent_properties' %}{% endif %}"
+                            class="text-sm font-medium text-gray-700 hover:text-blue-600">
+                            {% if property.listing_type == 'sale' %}For Sale{% else %}For Rent{% endif %}
+                        </a>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 text-sm mx-2"></i>
+                        <span class="text-sm font-medium text-gray-500 truncate">{{ property.title }}</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Image Gallery -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <!-- Main Image Display -->
+                    <div class="h-96 w-full bg-gray-200 relative group">
+                        {% with main_image=property.get_thumbnail %}
+                        {% if main_image %}
+                        <img id="main-property-image" src="{{ main_image.image.url }}" alt="{{ property.title }}"
+                            class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="flex items-center justify-center h-full text-gray-400">
+                            <i class="fas fa-image text-6xl"></i>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                        <div
+                            class="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-sm">
+                            {{ property.get_listing_type_display }}
+                        </div>
+                    </div>
+
+                    <!-- Thumbnails Grid -->
+                    {% if property.images.exists %}
+                    <div class="p-4 bg-gray-50 border-t">
+                        <h3 class="text-sm font-medium text-gray-500 mb-3">Gallery ({{ property.images.count }} images)
+                        </h3>
+                        <div class="grid grid-cols-4 sm:grid-cols-5 gap-4">
+                            {% for img in property.images.all %}
+                            <div class="relative group aspect-w-4 aspect-h-3">
+                                <img src="{{ img.image.url }}" alt="Property Image"
+                                    class="w-full h-24 object-cover rounded-md shadow-sm cursor-pointer hover:opacity-75 transition-opacity"
+                                    onclick="document.getElementById('main-property-image').src = this.src">
+
+                                {% if request.user == property.owner %}
+                                <div
+                                    class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
+                                    {% if img.is_thumbnail %}
+                                    <span class="text-green-400 font-bold text-xs"><i
+                                            class="fas fa-check-circle mr-1"></i> Main</span>
+                                    {% else %}
+                                    <a href="{% url 'set_thumbnail' img.id %}"
+                                        class="bg-white text-gray-900 text-xs px-2 py-1 rounded hover:bg-gray-100">
+                                        Set Main
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                {% if img.is_thumbnail %}
+                                <div class="absolute top-1 right-1 bg-green-500 text-white text-xs rounded-full p-1 shadow-sm border-2 border-white"
+                                    title="Main Image">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Property Details -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ property.title }}</h1>
+                            <p class="text-gray-500 flex items-center">
+                                <i class="fas fa-map-marker-alt mr-2 text-red-500"></i> {{ property.location }}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-3xl font-bold text-blue-600">{{ property.price }} FRW</p>
+                            <p class="text-gray-500 text-sm">per unit</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 py-6 border-t border-b border-gray-100 mb-6">
+                        <div class="text-center">
+                            <i class="fas fa-home text-2xl text-blue-500 mb-2"></i>
+                            <p class="text-sm text-gray-500">Type</p>
+                            <p class="font-semibold">{{ property.get_property_type_display }}</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-bed text-2xl text-blue-500 mb-2"></i>
+                            <p class="text-sm text-gray-500">Bedrooms</p>
+                            <p class="font-semibold">{{ property.bedrooms|default:"-" }}</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-bath text-2xl text-blue-500 mb-2"></i>
+                            <p class="text-sm text-gray-500">Bathrooms</p>
+                            <p class="font-semibold">{{ property.bathrooms|default:"-" }}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">Description</h2>
+                        <div class="prose max-w-none text-gray-600">
+                            {{ property.description|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 space-y-8">
+                <!-- Agent/Owner Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Contact Agent</h3>
+                    <div class="flex items-center mb-6">
+                        <div
+                            class="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xl font-bold mr-4">
+                            {{ property.owner.first_name|first|default:property.owner.username|first|upper }}
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-900">{{ property.owner.first_name }} {{
+                                property.owner.last_name }}</p>
+                            <p class="text-sm text-gray-500">{{ property.owner.email }}</p>
+                        </div>
+                    </div>
+
+                    {% if property.owner.phone %}
+                    <a href="tel:{{ property.owner.phone }}"
+                        class="block w-full bg-blue-600 text-white text-center py-3 rounded-md hover:bg-blue-700 font-medium mb-3">
+                        <i class="fas fa-phone-alt mr-2"></i> {{ property.owner.phone }}
+                    </a>
+                    {% endif %}
+                    <button
+                        class="block w-full border border-blue-600 text-blue-600 text-center py-3 rounded-md hover:bg-blue-50 font-medium">
+                        <i class="fas fa-envelope mr-2"></i> Send Message
+                    </button>
+                </div>
+
+                <!-- Edit Button for Owner -->
+                {% if request.user == property.owner %}
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Manage Property</h3>
+                    <a href="{% url 'edit_property' property.id %}"
+                        class="block w-full bg-yellow-500 text-white text-center py-3 rounded-md hover:bg-yellow-600 font-medium shadow-sm transition-colors">
+                        <i class="fas fa-edit mr-2"></i> Edit Property
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- Share -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Share this property</h3>
+                    <div class="flex space-x-4">
+                        <button class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700"><i
+                                class="fab fa-facebook-f"></i></button>
+                        <button class="flex-1 bg-blue-400 text-white py-2 rounded hover:bg-blue-500"><i
+                                class="fab fa-twitter"></i></button>
+                        <button class="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600"><i
+                                class="fab fa-whatsapp"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

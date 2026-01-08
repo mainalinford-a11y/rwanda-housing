@@ -1,0 +1,113 @@
+{% extends 'housing/base.html' %}
+
+{% block title %}Add Property - Rwanda Housing{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-12">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">Add a New Property</h1>
+
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative mb-6"
+                            role="alert">
+                            <strong class="font-bold">Please correct the errors below:</strong>
+                            <ul class="mt-2 list-disc list-inside text-sm">
+                                {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                <li>{{ field|title }}: {{ error }}</li>
+                                {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <!-- Basic Information -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Basic Information</h3>
+                            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                                <div class="col-span-2">
+                                    <label for="{{ form.title.id_for_label }}"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                                    {{ form.title }}
+                                </div>
+
+                                <div>
+                                    <label for="{{ form.listing_type.id_for_label }}"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Listing Type</label>
+                                    {{ form.listing_type }}
+                                </div>
+
+                                <div>
+                                    <label for="{{ form.property_type.id_for_label }}"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Property Type</label>
+                                    {{ form.property_type }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location & Price -->
+                        <div class="pt-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Location & Price</h3>
+                            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                                <div>
+                                    <label for="{{ form.location.id_for_label }}"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                                    {{ form.location }}
+                                </div>
+
+                                <div>
+                                    <label for="{{ form.price.id_for_label }}"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Price (RWF)</label>
+                                    {{ form.price }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description & Media -->
+                        <div class="pt-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Details & Media</h3>
+                            <div class="space-y-6">
+                                <div>
+                                    <label for="{{ form.description.id_for_label }}"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                    {{ form.description }}
+                                </div>
+
+                                <div>
+                                    <label for="images" class="block text-sm font-medium text-gray-700 mb-1">Property
+                                        Images (Max
+                                        15)</label>
+                                    <div
+                                        class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition-colors">
+                                        <div class="space-y-1 text-center">
+                                            <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-2"></i>
+                                            <div class="text-sm text-gray-600">
+                                                <input type="file" name="images" id="images" multiple
+                                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                            </div>
+                                            <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB each</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-6">
+                            <button type="submit"
+                                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <i class="fas fa-check mr-2 mt-1"></i> Submit Property
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'housing/base.html' %}
+
+{% block title %}Chat with {{ receiver.get_full_name|default:receiver.username }}{% endblock %}
+
+{% block content %}
+<div class="bg-gray-100 min-h-screen py-12">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col h-[700px] border border-gray-200">
+            <!-- Chat Header -->
+            <div class="p-4 border-b border-gray-100 bg-white flex items-center justify-between shadow-sm">
+                <div class="flex items-center">
+                    <a href="{% url 'inbox' %}" class="mr-4 text-gray-400 hover:text-indigo-600 transition">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </a>
+                    <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 border border-gray-100">
+                        {% if receiver.profile_picture %}
+                        <img src="{{ receiver.profile_picture.url }}" alt="{{ receiver.username }}"
+                            class="w-full h-full object-cover">
+                        {% else %}
+                        <div
+                            class="w-full h-full flex items-center justify-center text-indigo-600 text-xl font-bold bg-indigo-50">
+                            {{ receiver.username|first|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="font-bold text-gray-900 leading-tight">{{
+                            receiver.get_full_name|default:receiver.username }}</h2>
+                        <p class="text-xs text-green-500 font-bold flex items-center">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse"></span> Online
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    {% if receiver.whatsapp %}
+                    <a href="https://wa.me/{{ receiver.whatsapp }}" target="_blank"
+                        class="w-10 h-10 flex items-center justify-center rounded-full bg-green-50 text-green-600 hover:bg-green-100 transition">
+                        <i class="fab fa-whatsapp text-xl"></i>
+                    </a>
+                    {% endif %}
+                    {% if receiver.user_type == 'agent' %}
+                    <a href="{% url 'agent_profile' receiver.username %}"
+                        class="text-xs font-bold text-indigo-600 hover:underline uppercase tracking-widest">
+                        View Profile
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="flex-grow overflow-y-auto p-6 space-y-4 bg-gray-50/50" id="chat-messages">
+                {% for msg in messages_list %}
+                <div class="flex {% if msg.sender == user %}justify-end{% else %}justify-start{% endif %}">
+                    <div
+                        class="max-w-[75%] {% if msg.sender == user %}bg-indigo-600 text-white rounded-t-2xl rounded-l-2xl shadow-indigo-100{% else %}bg-white text-gray-800 rounded-t-2xl rounded-r-2xl border border-gray-100 shadow-sm{% endif %} p-4 shadow-md">
+                        <p class="text-sm leading-relaxed">{{ msg.message }}</p>
+                        <div class="mt-1 flex items-center justify-end">
+                            <span
+                                class="text-[10px] {% if msg.sender == user %}text-indigo-200{% else %}text-gray-400{% endif %}">
+                                {{ msg.timestamp|date:"H:i" }}
+                            </span>
+                            {% if msg.sender == user %}
+                            <i
+                                class="fas fa-check-double ml-1.5 text-[10px] {% if msg.is_read %}text-blue-300{% else %}text-indigo-300{% endif %}"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-70">
+                    <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-300">
+                        <i class="fas fa-comments text-4xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 font-medium">No messages yet.</p>
+                        <p class="text-xs text-gray-400">Start the conversation by sending a message below.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-6 bg-white border-t border-gray-100 shadow-xl">
+                <form method="POST" class="flex items-end space-x-4">
+                    {% csrf_token %}
+                    <div class="flex-grow">
+                        {{ form.message }}
+                    </div>
+                    <button type="submit"
+                        class="bg-indigo-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 shrink-0">
+                        <i class="fas fa-paper-plane text-xl"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Scroll to bottom on load
+    const messageBody = document.getElementById('chat-messages');
+    messageBody.scrollTop = messageBody.scrollHeight;
+</script>
+{% endblock %}

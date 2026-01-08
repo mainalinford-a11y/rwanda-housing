@@ -1,0 +1,167 @@
+{% extends 'housing/base.html' %}
+
+{% block title %}{{ agent.get_full_name|default:agent.username }} - Agent Profile{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-12">
+    <div class="container mx-auto px-4">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8 border border-gray-100">
+            <div class="h-48 bg-gradient-to-r from-blue-600 to-indigo-700"></div>
+            <div class="px-8 pb-8">
+                <div class="relative flex flex-col md:flex-row items-center md:items-end -mt-24 mb-6">
+                    <div class="w-40 h-40 rounded-full border-4 border-white bg-gray-200 overflow-hidden shadow-lg">
+                        {% if agent.profile_picture %}
+                        <img src="{{ agent.profile_picture.url }}" alt="{{ agent.username }}"
+                            class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center bg-gray-100 text-blue-600 text-5xl">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="md:ml-8 mt-4 md:mt-0 text-center md:text-left flex-grow">
+                        <h1 class="text-4xl font-bold text-gray-900">{{ agent.get_full_name|default:agent.username }}
+                        </h1>
+                        <p class="text-indigo-600 font-semibold text-lg">Real Estate Professional</p>
+                        <div class="flex items-center justify-center md:justify-start mt-2">
+                            <div class="flex text-yellow-400">
+                                {% for i in "12345" %}
+                                {% if agent.avg_rating >= forloop.counter %}
+                                <i class="fas fa-star"></i>
+                                {% elif agent.avg_rating >= forloop.counter|add:"-0.5" %}
+                                <i class="fas fa-star-half-alt"></i>
+                                {% else %}
+                                <i class="far fa-star text-gray-300"></i>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="ml-2 text-gray-600 font-bold">({{ agent.avg_rating|default:"0.0"|floatformat:1
+                                }})</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 md:mt-0 flex space-x-3">
+                        {% if user.is_authenticated and user != agent %}
+                        <a href="{% url 'chat_view' agent.username %}"
+                            class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 flex items-center">
+                            <i class="fas fa-comment-dots mr-2"></i> Message
+                        </a>
+                        {% elif user == agent %}
+                        <a href="{% url 'edit_profile' %}"
+                            class="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-200 transition border border-gray-200">
+                            <i class="fas fa-edit mr-2"></i> Edit Profile
+                        </a>
+                        {% endif %}
+
+                        {% if agent.whatsapp %}
+                        <a href="https://wa.me/{{ agent.whatsapp }}" target="_blank"
+                            class="bg-green-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-600 transition shadow-lg shadow-green-200 flex items-center">
+                            <i class="fab fa-whatsapp mr-2 text-xl"></i> WhatsApp
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-t pt-8">
+                    <!-- Stats & Info -->
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Agent Stats</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-blue-50 p-4 rounded-xl text-center">
+                                    <p class="text-2xl font-bold text-blue-700">{{ agent.houses_sold }}</p>
+                                    <p class="text-xs text-blue-600 font-medium">Sold</p>
+                                </div>
+                                <div class="bg-indigo-50 p-4 rounded-xl text-center">
+                                    <p class="text-2xl font-bold text-indigo-700">{{ agent.houses_rented }}</p>
+                                    <p class="text-xs text-indigo-600 font-medium">Rented</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Coverage Areas
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                {% if agent.locations %}
+                                {% for location in agent.locations.split %}
+                                <span
+                                    class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium border border-gray-200">{{
+                                    location|trim|slice:":-1" }}</span>
+                                {% endfor %}
+                                {# Simple split for comma separated values #}
+                                <span class="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg text-sm font-semibold">{{
+                                    agent.locations }}</span>
+                                {% else %}
+                                <p class="text-gray-400 italic text-sm">No specific locations listed.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Contact Details
+                            </h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-center text-gray-700">
+                                    <i class="fas fa-envelope w-6 text-indigo-500"></i>
+                                    <span>{{ agent.email }}</span>
+                                </li>
+                                {% if agent.phone %}
+                                <li class="flex items-center text-gray-700">
+                                    <i class="fas fa-phone w-6 text-indigo-500"></i>
+                                    <span>{{ agent.phone }}</span>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="md:col-span-2">
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">About the Agent</h3>
+                        <div class="prose max-w-none text-gray-700 leading-relaxed">
+                            {{ agent.bio|default:"This agent has not provided a biography yet."|linebreaks }}
+                        </div>
+
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mt-12 mb-6">Current Listings
+                            ({{ properties.count }})</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {% for property in properties %}
+                            <a href="{% url 'property_detail' property.id %}"
+                                class="group bg-gray-50 rounded-xl overflow-hidden hover:shadow-md transition border border-gray-200">
+                                <div class="h-40 bg-gray-200 relative overflow-hidden">
+                                    {% with thumb=property.get_thumbnail %}
+                                    {% if thumb and thumb.image %}
+                                    <img src="{{ thumb.image.url }}" alt="{{ property.title }}"
+                                        class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                    {% else %}
+                                    <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                        <i class="fas fa-image text-3xl"></i>
+                                    </div>
+                                    {% endif %}
+                                    {% endwith %}
+                                    <div
+                                        class="absolute top-2 right-2 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-indigo-600">
+                                        For {{ property.listing_type|title }}
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <h4 class="font-bold text-gray-900 group-hover:text-indigo-600 transition">{{
+                                        property.title }}</h4>
+                                    <p class="text-sm text-gray-500 mt-1"><i class="fas fa-map-marker-alt mr-1"></i> {{
+                                        property.location }}</p>
+                                    <p class="mt-2 text-indigo-700 font-extrabold">{{ property.price|floatformat:0 }}
+                                        RWF</p>
+                                </div>
+                            </a>
+                            {% empty %}
+                            <p class="text-gray-400 italic">No listed properties at the moment.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

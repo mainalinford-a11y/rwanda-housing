@@ -1,0 +1,99 @@
+{% extends 'housing/base.html' %}
+
+{% block title %}Find an Agent - Rwanda Housing{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+    <h1 class="text-4xl font-extrabold text-black mb-12 border-b-4 border-accent inline-block pb-2">Agents</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        {% for agent in agents %}
+        <div
+            class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 text-center p-8 border border-gray-100">
+            <div
+                class="w-24 h-24 bg-gray-50 rounded-full mx-auto mb-6 flex items-center justify-center text-accent text-3xl border-2 border-accent">
+                <i class="fas fa-user"></i>
+            </div>
+            <a href="{% url 'agent_profile' agent.username %}">
+                <h3 class="text-xl font-bold text-black mb-2 hover:text-indigo-600 transition">{{
+                    agent.get_full_name|default:agent.username }}</h3>
+            </a>
+            <p class="text-gray-500 font-medium mb-4">Real Estate Agent</p>
+            <div class="text-accent mb-6 flex items-center justify-center">
+                <div class="flex text-yellow-400 mr-2">
+                    {% for i in "12345" %}
+                    {% if agent.avg_rating >= forloop.counter|add:"-0.5" %}
+                    <i class="fas fa-star"></i>
+                    {% elif agent.avg_rating >= forloop.counter|add:"-1" %}
+                    <i class="fas fa-star-half-alt"></i>
+                    {% else %}
+                    <i class="far fa-star text-gray-300"></i>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <span class="text-gray-500 font-bold">({{ agent.avg_rating|default:"0.0"|floatformat:1 }})</span>
+            </div>
+
+            {% if user.is_authenticated and user.user_type != 'agent' %}
+            <div class="mb-6 border-t pt-6">
+                <button onclick="toggleRatingForm('{{ agent.id }}')"
+                    class="text-accent text-sm font-bold hover:underline">
+                    Rate this agent
+                </button>
+                <div id="rating-form-{{ agent.id }}" class="hidden mt-4 text-left">
+                    <form action="{% url 'rate_agent' agent.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Score (1-5)</label>
+                            <select name="score"
+                                class="w-full text-sm border rounded p-2 focus:ring-accent focus:border-accent">
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very Good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Comment</label>
+                            <textarea name="comment" rows="2"
+                                class="w-full text-sm border rounded p-2 focus:ring-accent focus:border-accent"
+                                placeholder="Optional..."></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-accent text-white py-2 rounded text-sm font-bold hover:opacity-90">
+                            Submit Rating
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="space-y-3">
+                <a href="{% url 'agent_profile' agent.username %}"
+                    class="block w-full btn-outline py-3 rounded-md font-bold transition-all text-sm">
+                    View Profile
+                </a>
+                {% if user.is_authenticated and user != agent %}
+                <a href="{% url 'chat_view' agent.username %}"
+                    class="block w-full bg-accent text-white py-3 rounded-md font-bold transition-all text-sm hover:opacity-90">
+                    Message Agent
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-4 text-center py-12">
+            <p class="text-gray-500 text-xl">No agents found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function toggleRatingForm(agentId) {
+        const form = document.getElementById(`rating-form-${agentId}`);
+        form.classList.toggle('hidden');
+    }
+</script>
+{% endblock %}

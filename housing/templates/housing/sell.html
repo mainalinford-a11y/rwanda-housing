@@ -1,0 +1,62 @@
+{% extends 'housing/base.html' %}
+
+{% block title %}Sell Your Property - Rwanda Housing{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-black text-white py-20">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-5xl font-extrabold mb-6">How much is your home worth?</h1>
+        <p class="text-xl mb-8 text-gray-300">Get a free property valuation from local experts.</p>
+        <div class="max-w-2xl mx-auto flex shadow-2xl rounded-lg overflow-hidden">
+            <input type="text" placeholder="Enter your postcode or address"
+                class="flex-grow p-4 text-gray-900 focus:outline-none">
+            <button class="bg-accent text-white px-8 py-4 font-bold hover:opacity-90 transition-all">
+                Get Valuation
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Features -->
+<div class="container mx-auto px-4 py-16">
+    <h2 class="text-3xl font-bold text-center mb-12">Why sell with Rwanda Housing?</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+        <div class="p-6">
+            <div
+                class="w-16 h-16 bg-accent bg-opacity-10 rounded-full flex items-center justify-center text-accent text-2xl mx-auto mb-6 border border-accent">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-4">Maximum Exposure</h3>
+            <p class="text-gray-600">We market your property to the largest audience of buyers in Rwanda.</p>
+        </div>
+        <div class="p-6">
+            <div
+                class="w-16 h-16 bg-accent bg-opacity-10 rounded-full flex items-center justify-center text-accent text-2xl mx-auto mb-6 border border-accent">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-4">Expert Agents</h3>
+            <p class="text-gray-600">Connect with top-rated agents who know your local area inside out.</p>
+        </div>
+        <div class="p-6">
+            <div
+                class="w-16 h-16 bg-accent bg-opacity-10 rounded-full flex items-center justify-center text-accent text-2xl mx-auto mb-6 border border-accent">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-4">Best Price</h3>
+            <p class="text-gray-600">Our data-driven approach helps you achieve the best possible selling price.</p>
+        </div>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="bg-gray-100 py-16">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-8">Ready to sell?</h2>
+        <a href="{% url 'agent_list' %}"
+            class="inline-block bg-black text-white px-10 py-4 rounded-md font-bold hover:bg-gray-800 transition-all">
+            Find an Agent
+        </a>
+    </div>
+</div>
+{% endblock %}
