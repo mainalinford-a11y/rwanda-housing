@@ -12,7 +12,9 @@ python -m venv .venv
 pip install --upgrade pip
 # Install lightweight runtime packages needed to run Django's collectstatic
 # Avoid installing the entire requirements list to keep build fast and reliable on Vercel
-pip install --no-cache-dir Django==5.2.8 whitenoise==6.5.0 pillow
+# Include REST framework and CORS because they're declared in INSTALLED_APPS
+pip install --no-cache-dir Django==5.2.8 whitenoise==6.5.0 pillow \
+	djangorestframework==3.16.1 django-cors-headers==4.9.0
 
 # Ensure project root is on PYTHONPATH so Django settings are discoverable
 export PYTHONPATH="$PWD:$PYTHONPATH"
